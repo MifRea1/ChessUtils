@@ -3,6 +3,17 @@ declare(strict_types = 1);
 namespace ChessUtils;
 
 const WHITELIST_COUNTRY_CODES = ['RUS'];
+const OLD_TITLES = [
+    '' => '',
+    'CM' => 'c',
+    'FM' => 'f',
+    'IM' => 'm',
+    'GM' => 'g',
+    'WCM' => 'wc',
+    'WFM' => 'wf',
+    'WIM' => 'wm',
+    'WGM' => 'wg'
+];
 
 function getPlayerLines(string $path, string $filename): array {
     $textFile = join (DIRECTORY_SEPARATOR, [$path, $filename . '.txt']);
@@ -55,18 +66,7 @@ function getName($line): string {
 }
 
 function convertToOldTitle($title): string {
-    $oldTitles = [
-        '' => '',
-        'CM' => 'c',
-        'FM' => 'f',
-        'IM' => 'm',
-        'GM' => 'g',
-        'WCM' => 'wc',
-        'WFM' => 'wf',
-        'WIM' => 'wm',
-        'WGM' => 'wg'
-    ];
-    return $oldTitles[$title];
+    return OLD_TITLES[$title];
 }
 
 function getTitle($line): string {
