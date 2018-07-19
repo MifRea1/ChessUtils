@@ -90,6 +90,6 @@ function getFlags($line): string {
 }
 
 function cut(string $string, int $from = 0, int $length = null, bool $isInteger = false) {
-    $result = substr($string, $from, $length);
+    $result = substr($string, $from, $length ?? strlen($string) - $from);
     return $isInteger ? intval($result) : rtrim($result);
 }
