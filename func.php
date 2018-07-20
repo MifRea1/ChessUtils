@@ -32,64 +32,64 @@ function getPlayerLines(string $path, string $filename): array {
     return explode(PHP_EOL, $text);
 }
 
-function filterByCountyCodes(array $players, $isListNew = false, array $codes = WHITELIST_COUNTRY_CODES): array {
+function filterByCountyCodes(array $players, bool $isListNew = false, array $codes = WHITELIST_COUNTRY_CODES): array {
     return array_filter($players, function($line) use ($codes, $isListNew) {
         return !empty($line) && in_array(getFederation($line, $isListNew), $codes);
     });
 }
 
-function formatToOld($line): string {
+function formatToOld(string $line): string {
     $id = getId($line);
-    $name = getName($line);
-    $title = convertToOldTitle(getTitle($line));
+    $name = getName($line, true);
+    $title = convertToOldTitle(getTitle($line, true));
     $federation = getFederation($line, true);
-    $rating = getRating($line);
+    $rating = getRating($line, true);
     $games = getGames($line);
-    $birthYear = getBirthYear($line);
+    $birthYear = getBirthYear($line, true);
     if ($birthYear === 0) {
         $birthYear = '';
     }
-    $flag = getFlags($line);
-    return sprintf('%9s %-34s%-4s%-5s%-6s%3s  %-6s%-4s', $id, $name, $title, $federation, $rating, $games, $birthYear, $flag);
+    $flags = getFlags($line, true);
+    return sprintf('%9s %-34s%-4s%-5s%-6s%3s  %-6s%-4s', $id, $name, $title, $federation, $rating, $games, $birthYear, $flags);
 }
 
-function getFederation($line, $isListNew = false): string {
+function getFederation(string $line, bool $isListNew = false): string {
     return cut($line, $isListNew ? 76 : 48, 3);
 }
 
-function getId($line): int {
+function getId(string $line): int {
     return cut($line, 0, 9, true);
 }
 
-function getName($line): string {
-    return cut($line, 15, 34);
+function getName(string $line, bool $isListNew = false): string {
+    return cut($line, $isListNew ? 15 : 10, 34);
 }
 
-function convertToOldTitle($title): string {
+function convertToOldTitle(string $title): string {
     return OLD_TITLES[$title];
 }
 
-function getTitle($line): string {
-    return cut($line, 84, 3);
+function getTitle(string $line, bool $isListNew = false): string {
+    return cut($line, $isListNew ? 84 : 44, 3);
 }
 
-function getRating($line): int {
-    return cut($line, 113, 4, true);
+function getRating(string $line, bool $isListNew = false): int {
+    return cut($line, $isListNew ? 113 : 53, 4, true);
 }
 
-function getGames($line): int {
+function getGames(string $line): int {
     return cut($line, 119, 2, true);
 }
 
-function getBirthYear($line): int {
-    return cut($line, 126, 4, true);
+function getBirthYear(string $line, bool $isListNew = false): int {
+    return cut($line, $isListNew ? 126 : 64, 4, true);
 }
 
-function getFlags($line): string {
-    return cut($line, 132, 2);
+function getFlags(string $line, bool $isListNew = false): string {
+    return cut($line, $isListNew ? 132 : 70, 2);
 }
 
 function cut(string $string, int $from = 0, int $length = null, bool $isInteger = false) {
     $result = substr($string, $from, $length ?? strlen($string) - $from);
-    return $isInteger ? intval($result) : rtrim($result);
+    return $isInteger ? intval($result) : rtrim($result, ' 0123456789');
 }
