@@ -32,9 +32,15 @@ function getPlayerLines(string $path, string $filename): array {
     return explode(PHP_EOL, $text);
 }
 
-function filterByCountyCodes(array $players, bool $isListNew = false, array $codes = WHITELIST_COUNTRY_CODES): array {
-    return array_filter($players, function($line) use ($codes, $isListNew) {
-        return !empty($line) && in_array(getFederation($line, $isListNew), $codes);
+function filterByCountyCodes(
+    array $players,
+    bool $isListNew = false,
+    array $codes = WHITELIST_COUNTRY_CODES,
+    array $whiteListPlayers = []
+): array {
+    return array_filter($players, function($line) use ($codes, $isListNew, $whiteListPlayers) {
+        return !empty($line)
+            && (in_array(getFederation($line, $isListNew), $codes) || in_array(getId($line), $whiteListPlayers));
     });
 }
 
