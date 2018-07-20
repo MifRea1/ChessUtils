@@ -91,5 +91,5 @@ function getFlags(string $line, bool $isListNew = false): string {
 
 function cut(string $string, int $from = 0, int $length = null, bool $isInteger = false) {
     $result = substr($string, $from, $length ?? strlen($string) - $from);
-    return $isInteger ? intval($result) : rtrim($result, ' 0123456789');
+    return $isInteger ? intval($result) : rtrim($result, ' ');
 }
