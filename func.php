@@ -14,6 +14,7 @@ const OLD_TITLES = [
     'WIM' => 'wm',
     'WGM' => 'wg'
 ];
+const MB = 2 ** 20;
 
 function getPlayerLines(string $path, string $filename): array {
     $textFile = join (DIRECTORY_SEPARATOR, [$path, $filename . '.txt']);
@@ -98,4 +99,36 @@ function getFlags(string $line, bool $isListNew = false): string {
 function cut(string $string, int $from = 0, int $length = null, bool $isInteger = false) {
     $result = substr($string, $from, $length ?? strlen($string) - $from);
     return $isInteger ? intval($result) : rtrim($result, ' ');
+}
+
+function memPeak(string $message = ''): void {
+    echo round(memory_get_peak_usage() / MB), 'Mb ', $message, PHP_EOL;
+}
+
+function loadWhitelistIds(string $whitelistFileName): void {
+    $whitelistFullFileName = join(DIRECTORY_SEPARATOR, [RATING_LISTS_PATH, $whitelistFileName]);
+    $whitelistIds = file_exists($whitelistFullFileName) ? file($whitelistFullFileName, FILE_IGNORE_NEW_LINES) : [];
+    define('WHITELIST_PLAYER_IDS', $whitelistIds);
+}
+
+function getInputFromZip(string $zipFileName) {
+    $archiveFileName = join(DIRECTORY_SEPARATOR, [RATING_LISTS_PATH, $zipFileName]) . '.zip';
+    if (!file_exists($archiveFileName)) {
+        echo 'File ' . $archiveFileName . ' was not found.';
+        exit;
+    }
+    $archive = zip_open($archiveFileName);
+    $file = zip_read($archive);
+    $fileName = zip_entry_name($file);
+    return fopen('zip://' . $archiveFileName . '#' . $fileName, 'r');
+}
+
+function isNotWhitelisted(string $player): bool {
+    if (in_array(getId($player), WHITELIST_PLAYER_IDS)) {
+        return false;
+    }
+    if (in_array(getFederation($player, true), WHITELIST_COUNTRY_CODES)) {
+        return false;
+    }
+    return true;
 }
